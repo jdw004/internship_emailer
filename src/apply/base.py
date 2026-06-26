@@ -31,7 +31,7 @@ class FillOutcome:
 
     @property
     def is_simple(self) -> bool:
-        """No leftover required fields → safe to auto-submit."""
+        """No leftover required fields; eligible only for explicit opt-in auto-submit."""
         return not self.unfilled_required and not self.error
 
 

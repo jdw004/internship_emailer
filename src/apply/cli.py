@@ -1,7 +1,8 @@
 """Local auto-apply tool.
 
-    python -m src.apply                 # apply per config (auto-simple / review-hard)
+    python -m src.apply                 # fill and review before submit
     python -m src.apply --prepare-only  # fill forms, NEVER submit (safe to try)
+    python -m src.apply --auto-submit --mode auto_simple_review_hard
     python -m src.apply --limit 3       # cap how many this run
     python -m src.apply --headless      # no visible browser (testing only)
     python -m src.apply --company Stripe --category swe
@@ -42,10 +43,17 @@ def _setup_logging() -> None:
 def _resolve_resume(profile) -> str:
     if not profile.resume_path:
         return ""
-    p = Path(profile.resume_path)
+    p = Path(profile.resume_path).expanduser()
     if not p.is_absolute():
         p = config.ROOT / p
-    return str(p) if p.exists() else ""
+    p = p.resolve()
+    resumes_dir = (config.ROOT / "resumes").resolve()
+    try:
+        p.relative_to(resumes_dir)
+    except ValueError:
+        log.warning("resume_path must point to a file under %s", resumes_dir)
+        return ""
+    return str(p) if p.is_file() else ""
 
 
 def _candidate_jobs(args, applog, allowed_ats: set[str]):
@@ -99,6 +107,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--limit", type=int, default=None, help="max applications this run")
     parser.add_argument("--prepare-only", action="store_true", help="fill forms but never submit")
     parser.add_argument("--headless", action="store_true", help="no visible browser (testing)")
+    parser.add_argument(
+        "--auto-submit",
+        action="store_true",
+        help="allow auto-submit modes; default is review before every submit",
+    )
+    parser.add_argument(
+        "--cover-letter",
+        action="store_true",
+        help="generate cover letters with Gemini; sends profile/job data to Google",
+    )
     parser.add_argument("--no-cover-letter", action="store_true", help="don't generate cover letters")
     parser.add_argument("--category", choices=["swe", "quant", "consulting"], help="only this category")
     parser.add_argument("--company", help="only companies whose name contains this")
@@ -108,9 +126,12 @@ def main(argv: list[str] | None = None) -> int:
 
     settings = config.settings()
     acfg = settings.get("apply", {})
-    mode = args.mode or acfg.get("mode", "auto_simple_review_hard")
+    configured_mode = args.mode or acfg.get("mode", "review_all")
+    mode = configured_mode if args.auto_submit else "review_all"
     limit = args.limit if args.limit is not None else acfg.get("daily_limit", 10)
-    gen_cover = acfg.get("generate_cover_letter", True) and not args.no_cover_letter
+    gen_cover = not args.no_cover_letter and (
+        args.cover_letter or acfg.get("generate_cover_letter", False)
+    )
     allowed_ats = set(acfg.get("supported_ats", list(supported_ats()))) & supported_ats()
 
     # 1) Profile.

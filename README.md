@@ -120,23 +120,23 @@ It sends a short "N new internships today" text alongside the email digest. Twil
 costs a few cents per message.
 
 ## Auto-apply (local) — implemented
-`src/apply/` is a working local tool that applies to the jobs the bot finds:
-opens each Greenhouse / Lever / Ashby application form in a real browser, fills
-your details, generates a tailored cover letter via Gemini 2.5 Flash, and
-**auto-submits simple forms while pausing for your review on forms with custom
-questions**.
+`src/apply/` is a working local tool that opens Greenhouse / Lever / Ashby
+application forms in a real browser and fills your details. It defaults to
+**review before every submission**. Cover letters and auto-submit are explicit
+opt-ins because they transmit personal data to third parties.
 
 ```bash
 pip install -r requirements.txt -r requirements-apply.txt
 python -m playwright install chromium
 python -m src.apply --prepare-only      # safe first run: fills but never submits
-python -m src.apply                     # real run (visible browser)
+python -m src.apply                     # fill + pause for your review before submit
 ```
 
 Runs on your machine (not CI) so you can watch, solve CAPTCHAs, and review before
-submit. It needs your resume in `resumes/`, a filled `config/profile.yaml` (copy
-`config/profile.example.yaml`), and optionally `GEMINI_API_KEY` for cover letters.
-Every attempt is logged to `data/applications.json` so re-runs never double-apply.
+submit. It needs your resume in `resumes/` and a filled `config/profile.yaml`
+(copy `config/profile.example.yaml`). If you opt in with `--cover-letter`, it uses
+`GEMINI_API_KEY` and sends job/profile context to Google. Every attempt is logged
+to `data/applications.json` so re-runs never double-apply.
 
 **See [APPLYING.md](APPLYING.md) for the full guide, modes, and what to provide.**
 

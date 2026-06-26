@@ -23,6 +23,7 @@ import logging
 import re
 from datetime import datetime, timezone
 from typing import Any
+from urllib.parse import urlparse
 
 import requests
 
@@ -54,6 +55,14 @@ def _detect_year(*texts: Any) -> int | None:
     return None
 
 
+def _is_http_url(url: str) -> bool:
+    try:
+        parsed = urlparse(url or "")
+    except ValueError:
+        return False
+    return parsed.scheme in {"http", "https"} and bool(parsed.hostname)
+
+
 def _map_listing(raw: dict[str, Any], source_name: str) -> Job | None:
     if not isinstance(raw, dict):
         return None
@@ -65,6 +74,8 @@ def _map_listing(raw: dict[str, Any], source_name: str) -> Job | None:
     title = raw.get("title") or ""
     url = raw.get("url") or raw.get("company_url") or ""
     if not (company and title and url):
+        return None
+    if not _is_http_url(str(url)):
         return None
 
     locations = raw.get("locations") or []

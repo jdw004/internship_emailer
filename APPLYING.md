@@ -1,22 +1,22 @@
 # Auto-apply (local)
 
 The daily bot finds and emails you internships. This tool **applies** to them —
-it opens each job's application form in a real browser, fills your details,
-generates a tailored cover letter with Gemini 2.5 Flash, and either auto-submits
-simple forms or pauses for you to review forms with custom questions.
+it opens each job's application form in a real browser and fills your details.
+It defaults to review-before-submit for every form. Cover letters and auto-submit
+are explicit opt-ins because they transmit personal data to third parties.
 
 It runs **on your machine** (not GitHub Actions) so you can watch the browser,
 solve any CAPTCHA, and review before anything is submitted.
 
-## How it decides to submit (default mode)
-`auto_simple_review_hard` (set in `config/settings.yaml` → `apply.mode`):
+## How it decides to submit
 
-- **Simple form** (only standard fields: name, email, resume, links) → **auto-submitted**.
-- **Hard form** (has custom/essay/required questions it couldn't fill) → **pauses**,
-  shows you what's missing, and waits for you to complete it in the browser and
-  press Enter to submit (or `s` to skip, `q` to quit).
+- **Default:** fill fields, then wait for you to review and press Enter to submit
+  (or `s` to skip, `q` to quit).
+- **Opt-in auto-submit:** pass `--auto-submit --mode auto_simple_review_hard` to
+  auto-submit forms with no remaining required fields and pause on harder forms.
 
-Other modes: `review_all` (always pause), `auto_all` (submit everything — riskiest).
+Other modes: `review_all` (always pause), `auto_all` (submit everything — riskiest,
+requires `--auto-submit`).
 
 ## What you need to provide
 1. **Your resume** — drop the PDF in `resumes/` (e.g. `resumes/your_name.pdf`).
@@ -25,9 +25,9 @@ Other modes: `review_all` (always pause), `auto_all` (submit everything — risk
    `school`, `graduation_date`, `linkedin`, `github`, `current_location`, and a
    concrete `summary` (this grounds the cover letter in your real experience).
    Both files are gitignored — your data never leaves your machine.
-3. **(Optional) Gemini API key** for cover letters — `GEMINI_API_KEY` in `.env`
-   (get one free at https://aistudio.google.com/apikey). Without it, applications
-   still go through, just without a generated cover letter.
+3. **(Optional) Gemini API key** for cover letters — `GEMINI_API_KEY` in `.env`.
+   Pass `--cover-letter` when you want to send profile/job context to Google for
+   generated cover letters.
 
 ## Setup
 ```bash
@@ -41,15 +41,18 @@ python -m playwright install chromium     # one-time browser download
 # SAFEST FIRST RUN: fill forms but never submit — see exactly what it does
 python -m src.apply --prepare-only --limit 3
 
-# Real run (auto-simple / review-hard), visible browser, default daily limit
+# Real run, visible browser, review before every submit
 python -m src.apply
+
+# Optional: auto-submit simple forms after you trust the workflow
+python -m src.apply --auto-submit --mode auto_simple_review_hard
 
 # Useful flags
 python -m src.apply --company Stripe        # only this company
 python -m src.apply --category quant         # only quant roles
 python -m src.apply --limit 5                # cap this run
 python -m src.apply --mode review_all        # pause on every form
-python -m src.apply --no-cover-letter        # skip cover-letter generation
+python -m src.apply --cover-letter           # opt into Gemini cover-letter generation
 ```
 
 It only considers jobs whose ATS it can fill (**Greenhouse, Lever, Ashby**) and

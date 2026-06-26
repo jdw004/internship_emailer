@@ -53,8 +53,26 @@ def test_greenhouse_apply_url_is_job_url():
 
 
 def test_registry_picks_by_ats():
-    assert get_applicator(Job(company="X", title="t", url="u", ats="ashby")).ats == "ashby"
+    assert get_applicator(
+        Job(
+            company="X",
+            title="t",
+            url="https://jobs.ashbyhq.com/x/abc",
+            ats="ashby",
+        )
+    ).ats == "ashby"
     assert get_applicator(Job(company="X", title="t", url="u", ats="workday")) is None
+
+
+def test_registry_rejects_lookalike_urls():
+    malicious = [
+        "https://evil.example/apply?next=jobs.lever.co",
+        "http://jobs.lever.co/palantir/abc",
+        "https://jobs.lever.co.evil.example/palantir/abc",
+        "https://evil.example/job-boards.greenhouse.io/stripe/jobs/1",
+    ]
+    for url in malicious:
+        assert get_applicator(Job(company="X", title="t", url=url, ats="lever")) is None
 
 
 # --- is_done: never re-apply to handled jobs ---------------------------------

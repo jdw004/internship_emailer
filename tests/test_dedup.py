@@ -2,6 +2,9 @@
 
 from datetime import date
 
+import pytest
+
+from src import config
 from src import dedup
 from src.models import Job
 
@@ -54,3 +57,9 @@ def test_job_id_stable_and_case_insensitive():
     a = _job("Acme", "SWE Intern", "https://a.com/1")
     b = _job("acme", "swe  intern", "https://a.com/1")  # case + extra space
     assert a.job_id == b.job_id
+
+
+def test_state_path_must_stay_inside_repo(monkeypatch):
+    monkeypatch.setattr(config, "settings", lambda: {"state_file": "../outside.json"})
+    with pytest.raises(ValueError):
+        config.state_path()

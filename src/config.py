@@ -49,7 +49,13 @@ def settings() -> dict[str, Any]:
 
 def state_path() -> Path:
     rel = settings().get("state_file", "data/seen_jobs.json")
-    return ROOT / rel
+    path = (ROOT / rel).resolve()
+    root = ROOT.resolve()
+    try:
+        path.relative_to(root)
+    except ValueError as exc:
+        raise ValueError(f"state_file must stay inside repo root: {rel}") from exc
+    return path
 
 
 def secrets() -> dict[str, str]:

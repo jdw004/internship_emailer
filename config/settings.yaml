@@ -46,10 +46,11 @@ suppress_when_empty: true
 apply:
   # auto_simple_review_hard: auto-submit forms with no extra required fields,
   #                          pause for your review when a form has custom questions.
+  #                          Requires passing --auto-submit at runtime.
   # review_all:  fill everything, always pause for you to submit.
-  # auto_all:    fill and submit everything (riskiest).
-  mode: auto_simple_review_hard
-  generate_cover_letter: true   # needs GEMINI_API_KEY (Gemini 2.5 Flash)
+  # auto_all:    fill and submit everything (riskiest; requires --auto-submit).
+  mode: review_all
+  generate_cover_letter: false  # opt in with --cover-letter; sends data to Google
   daily_limit: 10               # max applications per run
   # ATSes the apply tool knows how to fill. Jobs from other sources are skipped
   # (you still get them in the email digest).
