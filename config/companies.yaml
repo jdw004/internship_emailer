@@ -1,0 +1,70 @@
+# Direct company career-site pulls via their Applicant Tracking System (ATS)
+# public JSON APIs. This catches quant/consulting roles the SWE-only community
+# lists miss, and surfaces postings earlier.
+#
+# How to find a company's token:
+#   greenhouse -> the slug in https://boards.greenhouse.io/<token>
+#   lever      -> the slug in https://jobs.lever.co/<token>
+#   ashby      -> the slug in https://jobs.ashbyhq.com/<token>
+#   workday    -> from the careers URL https://<tenant>.wd<N>.myworkdayjobs.com/<site>
+#                 set tenant, wd_num (the N), and site accordingly.
+#
+# Tokens below were verified to return 200 (run `--dry-run` and check logs for
+# any new 404s). `enabled: false` skips an entry without deleting it.
+#
+# NOTE: Several giants run custom career sites with NO public ATS API and so
+# can't be pulled directly here — Microsoft, Google, Apple, Amazon, Meta, Tesla,
+# Uber, JPMorgan, Citadel, Two Sigma. Their internships still reach you via the
+# community lists in config/github_lists.yaml (which cover these heavily).
+
+greenhouse:
+  # quant / trading  (verified tokens)
+  - { company: Hudson River Trading, token: hrtcampus }
+  - { company: Jane Street,        token: janestreet }
+  - { company: IMC Trading,        token: imc }
+  - { company: Optiver,            token: optiver }
+  - { company: Jump Trading,       token: jumptrading }
+  - { company: DRW,                token: drweng }
+  - { company: Akuna Capital,      token: akunacapital }
+  # big tech / unicorns / startups  (verified tokens)
+  - { company: SpaceX,             token: spacex }
+  - { company: Stripe,             token: stripe }
+  - { company: Databricks,         token: databricks }
+  - { company: Scale AI,           token: scaleai }
+  - { company: Airbnb,             token: airbnb }
+  - { company: Coinbase,           token: coinbase }
+  - { company: Gemini,             token: gemini }
+  - { company: Galaxy Digital,     token: galaxydigitalservices }
+  - { company: Robinhood,          token: robinhood }
+  - { company: Affirm,             token: affirm }
+  - { company: Brex,               token: brex }
+  - { company: Discord,            token: discord }
+  - { company: Samsara,            token: samsara }
+  - { company: Nuro,               token: nuro }
+  - { company: Verkada,            token: verkada }
+  - { company: Qualtrics,          token: qualtrics }
+  - { company: Anduril,            token: andurilindustries }
+
+lever:
+  - { company: Palantir,           token: palantir }
+  - { company: Plaid,              token: plaid }
+  - { company: Netflix,            token: netflix }
+
+ashby:
+  - { company: OpenAI,             token: openai }
+  - { company: Ramp,               token: ramp }
+  - { company: Notion,             token: notion }
+  - { company: Linear,             token: linear }
+  - { company: Cursor,             token: cursor }
+
+workday:
+  # tenant + wd_num + site come from the careers URL; verify each before trusting.
+  - { company: NVIDIA,         tenant: nvidia,     wd_num: 5,  site: NVIDIAExternalCareerSite }
+  - { company: Salesforce,     tenant: salesforce, wd_num: 12, site: External_Career_Site }
+  - { company: Capital One,    tenant: capitalone, wd_num: 12, site: Capital_One }
+  - { company: Morgan Stanley, tenant: ms, wd_num: 5, site: External }
+  # Goldman's CXS endpoint rejected the generic body (422) — needs the exact
+  # site name from its careers URL. Left disabled until verified.
+  - { company: Goldman Sachs, tenant: goldmansachs, wd_num: 1, site: GS_External, enabled: false }
+  # Consulting (tech tracks) are mostly Workday — add when you confirm site names:
+  # - { company: Deloitte,  tenant: deloitte,  wd_num: 1, site: Deloitte_US_External }

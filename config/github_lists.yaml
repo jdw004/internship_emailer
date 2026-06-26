@@ -1,0 +1,21 @@
+# Community-maintained internship aggregators that publish a structured
+# `listings.json`. The highest-yield source for US SWE internships, and the
+# channel through which custom-career-site giants (Microsoft, Google, Apple,
+# Amazon, Meta, Tesla, ...) reach you.
+#
+# Currently tracking the Summer 2027 cycle. These repos roll names each cycle
+# (Summer2027 -> Summer2028); update `url` when the next cycle's repo appears.
+# To find the raw URL: open the repo, go to .github/scripts/listings.json on the
+# `dev` branch, click "Raw".
+
+enabled: true
+
+# JSON lists (SimplifyJobs-style listings.json schema).
+lists:
+  - name: vanshb03-summer2027
+    url: https://raw.githubusercontent.com/vanshb03/Summer2027-Internships/dev/.github/scripts/listings.json
+
+# README markdown-table lists (Company | Role | Location | Posted | Visa | Apply).
+readme_tables:
+  - name: zapply-2027
+    url: https://raw.githubusercontent.com/zapplyjobs/Internships-2027/main/README.md

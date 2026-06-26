@@ -1,0 +1,288 @@
+# Filtering rules. Everything here is tunable without touching code.
+# A job is kept only if it passes ALL of: role/season, category keywords, US location, active.
+
+# ---------------------------------------------------------------------------
+# 1) ROLE / SEASON
+# ---------------------------------------------------------------------------
+role:
+  # We only want internships (not new-grad full-time / experienced).
+  require_internship: true
+
+  # Title substrings (lowercased) that mark a posting as an internship.
+  internship_terms:
+    - intern
+    - internship
+    - co-op
+    - coop
+    - "co op"
+    - summer analyst        # banks/quant call interns "summer analyst"
+    - industrial placement
+    - student
+
+  # If a title contains any of these, it is rejected outright (full-time/senior roles).
+  # NOTE: applied carefully — "intern" titles win even if "engineer" appears.
+  exclude_terms:
+    - senior
+    - staff
+    - principal
+    - lead
+    - manager
+    - director
+    - "full-time" # only excluded when no internship term present (see code)
+    - "full time"
+
+  # Seasons we accept. A job's season is detected from tags or title.
+  # Empty list = accept any season.
+  seasons:
+    - summer
+    - spring
+    - fall          # keep fall/off-cycle co-ops; remove if you only want summer/spring
+    - offcycle
+    - winter
+
+  # Only keep postings whose detected year is in this list (when a year is detectable).
+  # Jobs with no detectable year are kept (many ATS postings omit the year).
+  years:
+    - 2026
+    - 2027
+
+# ---------------------------------------------------------------------------
+# 2) CATEGORY KEYWORDS  (title is matched against each group; first hit wins)
+#    Order matters: quant is checked before generic swe so "quant developer"
+#    classifies as quant, not swe.
+# ---------------------------------------------------------------------------
+categories:
+  quant:
+    - quant
+    - quantitative
+    - trading
+    - trader
+    - "systematic"
+    - "algorithmic"
+  swe:
+    - software engineer
+    - software engineering
+    - software developer
+    - software development
+    - swe
+    - "backend"
+    - "back-end"
+    - "frontend"
+    - "front-end"
+    - "full stack"
+    - "full-stack"
+    - "fullstack"
+    - "developer"
+    - "programmer"
+    - "machine learning engineer"
+    - "ml engineer"
+    - "infrastructure engineer"
+    - "platform engineer"
+    - "systems engineer"
+  consulting:
+    - consulting
+    - consultant
+    - "technology analyst"
+    - "tech consulting"
+    - "business analyst"   # consulting firms' entry tech/strategy track
+
+# If true, a job must match at least one category group to be kept.
+require_category: true
+
+# ---------------------------------------------------------------------------
+# 3) LOCATION  (US-only)
+# ---------------------------------------------------------------------------
+location:
+  require_us: true
+
+  # Any of these substrings (lowercased) marks a location as US-eligible.
+  us_terms:
+    - united states
+    - "usa"
+    - " us"
+    - "u.s."
+    - remote          # treated as US-eligible unless a non-US term also appears
+    # state names
+    - alabama
+    - alaska
+    - arizona
+    - arkansas
+    - california
+    - colorado
+    - connecticut
+    - delaware
+    - florida
+    - georgia
+    - hawaii
+    - idaho
+    - illinois
+    - indiana
+    - iowa
+    - kansas
+    - kentucky
+    - louisiana
+    - maine
+    - maryland
+    - massachusetts
+    - michigan
+    - minnesota
+    - mississippi
+    - missouri
+    - montana
+    - nebraska
+    - nevada
+    - "new hampshire"
+    - "new jersey"
+    - "new mexico"
+    - "new york"
+    - "north carolina"
+    - "north dakota"
+    - ohio
+    - oklahoma
+    - oregon
+    - pennsylvania
+    - "rhode island"
+    - "south carolina"
+    - "south dakota"
+    - tennessee
+    - texas
+    - utah
+    - vermont
+    - virginia
+    - washington
+    - "west virginia"
+    - wisconsin
+    - wyoming
+    - "washington, d.c."
+    - "washington dc"
+    # state abbreviations (matched as ", XX" to avoid false hits)
+    - ", al"
+    - ", ak"
+    - ", az"
+    - ", ar"
+    - ", ca"
+    - ", co"
+    - ", ct"
+    - ", de"
+    - ", fl"
+    - ", ga"
+    - ", hi"
+    - ", id"
+    - ", il"
+    - ", in"
+    - ", ia"
+    - ", ks"
+    - ", ky"
+    - ", la"
+    - ", ma"
+    - ", md"
+    - ", me"
+    - ", mi"
+    - ", mn"
+    - ", mo"
+    - ", ms"
+    - ", mt"
+    - ", nc"
+    - ", nd"
+    - ", ne"
+    - ", nh"
+    - ", nj"
+    - ", nm"
+    - ", nv"
+    - ", ny"
+    - ", oh"
+    - ", ok"
+    - ", or"
+    - ", pa"
+    - ", ri"
+    - ", sc"
+    - ", sd"
+    - ", tn"
+    - ", tx"
+    - ", ut"
+    - ", va"
+    - ", vt"
+    - ", wa"
+    - ", wi"
+    - ", wv"
+    - ", wy"
+    - ", dc"
+    # major US tech hubs (city-only strings)
+    - "new york city"
+    - "san francisco"
+    - "bay area"
+    - "palo alto"
+    - "mountain view"
+    - "menlo park"
+    - "sunnyvale"
+    - "san jose"
+    - "seattle"
+    - "bellevue"
+    - "redmond"
+    - "boston"
+    - "cambridge"
+    - "chicago"
+    - "austin"
+    - "los angeles"
+    - "san diego"
+    - "denver"
+    - "atlanta"
+    - "pittsburgh"
+
+  # If a location contains any of these, it is treated as NON-US and rejected
+  # (takes precedence — handles "Remote, Canada", "London, UK", etc.).
+  non_us_terms:
+    - canada
+    - toronto
+    - vancouver
+    - montreal
+    - waterloo
+    - ontario
+    - " uk"
+    - "u.k."
+    - "united kingdom"
+    - england
+    - london
+    - ireland
+    - dublin
+    - india
+    - bangalore
+    - bengaluru
+    - hyderabad
+    - pune
+    - gurgaon
+    - mumbai
+    - singapore
+    - "hong kong"
+    - china
+    - shanghai
+    - beijing
+    - japan
+    - tokyo
+    - australia
+    - sydney
+    - germany
+    - berlin
+    - munich
+    - france
+    - paris
+    - netherlands
+    - amsterdam
+    - switzerland
+    - zurich
+    - israel
+    - "tel aviv"
+    - brazil
+    - mexico
+    - poland
+    - warsaw
+    - spain
+    - sweden
+    - "abu dhabi"
+    - dubai
+    - emea
+    - apac
+    - latam
+
+  # If a posting has NO location info at all, keep it? (ATS sometimes omit it.)
+  keep_when_location_unknown: true
